@@ -29,6 +29,7 @@ func NewTimeWheel() *TimeWheel {
 	tw := &TimeWheel{
 		HourMap: map[int]*HourWheel{},
 		Mu:      new(sync.Mutex),
+		StopCh:  make(chan int, 1),
 		Tasks:   map[string]*TaskInfo{},
 		TMu:     new(sync.Mutex),
 	}
@@ -155,13 +156,17 @@ func (tw *TimeWheel) execTasks(t time.Time) {
 		if tsk.TaskType == MultiTask {
 			tsk.ExecCnt--
 		}
+		// 清除当前任务
+		tw.ClearTask(tsk.TaskName)
 		// 清除已完成任务 (单次任务 或 已执行完的多次任务)
 		if tsk.TaskType == SingleTask || (tsk.TaskType == MultiTask && tsk.ExecCnt == 0) {
-			tw.ClearTask(tsk.TaskName)
 			continue
 		}
 		// 重新加入任务队列 (未执行完的多次任务 或 永久任务)
-		tw.AddTask(tsk)
+		err := tw.AddTask(tsk)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
