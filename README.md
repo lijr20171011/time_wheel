@@ -22,7 +22,7 @@
 * `execCnt` : 任务执行次数，对单次任务和永久任务没有影响
 * `interval` : 任务执行时间间隔
 * `callFunc` : 执行的任务 
-    * 任务格式 : `func(args ...interface{}) error`
+    * 任务函数类型 : `func(args ...interface{}) error`
 * `callArgs` : 任务参数
 
 ## 添加任务至时间轮
