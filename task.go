@@ -14,16 +14,17 @@ const (
 )
 
 // 任务详情
-type TaskInfo struct {
-	Hour     int           // 任务所在时
-	Minute   int           // 任务所在分
-	Second   int           // 任务所在秒
-	TaskName string        // 任务名称
-	ExecCnt  int           // 执行次数
-	Interval time.Duration // 任务间隔
-	TaskType TaskType      // 任务类型
-	CallFunc TaskFunc      // 任务函数
-	CallArgs []interface{} // 参数
+type taskInfo struct {
+	hour     int           // 任务所在时
+	minute   int           // 任务所在分
+	second   int           // 任务所在秒
+	taskName string        // 任务名称
+	circle   int           // 剩余转到次数,定义第n次转到开始执行
+	execCnt  int           // 执行次数
+	interval time.Duration // 任务间隔
+	taskType TaskType      // 任务类型
+	callFunc TaskFunc      // 任务函数
+	callArgs []interface{} // 参数
 }
 
 // 任务调用方法
@@ -31,7 +32,7 @@ type TaskFunc func(args ...interface{}) error
 
 // NewTask ...
 // 新建定时任务
-func NewTask(tName string, tType TaskType, execCnt int, interval time.Duration, callFunc TaskFunc, callArgs ...interface{}) (*TaskInfo, error) {
+func NewTask(tName string, tType TaskType, execCnt int, interval time.Duration, callFunc TaskFunc, callArgs ...interface{}) (*taskInfo, error) {
 	if tName == "" {
 		return nil, errors.New("任务名称不能为空")
 	}
@@ -44,12 +45,12 @@ func NewTask(tName string, tType TaskType, execCnt int, interval time.Duration, 
 	if interval < time.Second {
 		return nil, errors.New("时间间隔不能少于1s")
 	}
-	return &TaskInfo{
-		TaskName: tName,
-		ExecCnt:  execCnt,
-		Interval: interval,
-		TaskType: tType,
-		CallFunc: callFunc,
-		CallArgs: callArgs,
+	return &taskInfo{
+		taskName: tName,
+		execCnt:  execCnt,
+		interval: interval,
+		taskType: tType,
+		callFunc: callFunc,
+		callArgs: callArgs,
 	}, nil
 }
